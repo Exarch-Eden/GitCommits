@@ -1,0 +1,24 @@
+{
+  "name": "GitCommits",
+  "version": "1.0.0",
+  "description": "Small React + Typescript project to familiarize myself with React Redux",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Exarch-Eden/GitCommits.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Exarch-Eden/GitCommits/issues"
+  },
+  "homepage": "https://github.com/Exarch-Eden/GitCommits#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1"
+  }
+}

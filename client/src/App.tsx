@@ -1,12 +1,22 @@
 import React, { FC } from "react";
 import logo from "./logo.svg";
 import { Counter } from "./features/counter/Counter";
-import "./App.css";
+import "./styles/App.css";
+import Commits from "./screens/Commits";
 
 const App: FC = () => {
   return (
-    <div>
-      <p>This is app</p>
+    <div className="App">
+      <header className="headerContainer">
+        <p>Header</p>
+      </header>
+      <main className="mainContainer">
+        <p>Main</p>
+        <Commits />
+      </main>
+      <footer className="footerContainer paddedContainer">
+        <p>Website by Kent Claudio</p>
+      </footer>
     </div>
   );
 };

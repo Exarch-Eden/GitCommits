@@ -8,7 +8,7 @@ import { selectLinkInput, setInput } from "../redux/reducers/linkInputSlice";
 const ENTER_KEY = "Enter";
 
 interface LinkFieldProps {
-  onEnterKeyDown: (linkInput: string) => void;
+  onEnterKeyDown: () => void;
 }
 
 /**
@@ -17,9 +17,6 @@ interface LinkFieldProps {
  * Will not accept private repositories.
  */
 const LinkField: FC<LinkFieldProps> = ({ onEnterKeyDown }) => {
-  // // TODO: move to redux store as a separate slice reducer
-  // const [linkInput, setLinkInput] = useState("");
-
   const linkInput = useAppSelector(selectLinkInput);
   const dispatch = useAppDispatch();
 
@@ -33,7 +30,7 @@ const LinkField: FC<LinkFieldProps> = ({ onEnterKeyDown }) => {
         }}
         onKeyDown={(event) => {
           if (event.key === ENTER_KEY) {
-            onEnterKeyDown(linkInput);
+            onEnterKeyDown();
           }
         }}
         label="Search Input"

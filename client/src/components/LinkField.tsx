@@ -25,8 +25,8 @@ const LinkField: FC<LinkFieldProps> = ({ onEnterKeyDown }) => {
       <TextField
         value={linkInput}
         onChange={(event) => {
-          const { value } = event.target;
-          dispatch(setInput(value));
+          const { value }: { value: string } = event.target;
+          dispatch(setInput(value.trim()));
         }}
         onKeyDown={(event) => {
           if (event.key === ENTER_KEY) {

@@ -1,8 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import CommitVisualizer from "../components/CommitVisualizer";
 import LinkField from "../components/LinkField";
 
 // redux imports
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import {
+  selectCommitData,
+  setCommitData,
+} from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
 
 /** Regex for extracting the GitHub username from the link input. */
@@ -24,6 +29,10 @@ const LOCAL_SERVER_BASE_URL = "http://localhost:5000/commits";
 const Commits = () => {
   // the link input inserted by the user in the LinkField component
   const linkInput = useAppSelector(selectLinkInput);
+  // purely for testing purposes
+  const commitData = useAppSelector(selectCommitData);
+  // redux store dispatch mainly used to set the commit data after fetching
+  const dispatch = useAppDispatch();
 
   /**
    * Function called when the user presses the Enter key after
@@ -43,12 +52,27 @@ const Commits = () => {
       parsedLink = parseLink(linkInput);
 
       // fetch commits once parsing is successful
-      await fetchCommitData(parsedLink.userName, parsedLink.repoName);
+      const fetchedCommitData = await fetchCommitData(
+        parsedLink.userName,
+        parsedLink.repoName
+      );
+      console.log("fetched commitData:");
+      console.table(fetchedCommitData);
+
+      dispatch(setCommitData(fetchedCommitData));
+      
     } catch (error) {
       console.error(error);
     }
     console.log("end of inputOnEnterKeyDown()");
-  }, [linkInput]);
+  }, [linkInput, dispatch]);
+
+  // for testing purposes
+  // logs commitData redux state
+  useEffect(() => {
+    console.log("redux commitData: ");
+    console.table(commitData);
+  }, [commitData]);
 
   return (
     <div>
@@ -122,9 +146,8 @@ const fetchCommitData = async (userName: string, repoName: string) => {
     const fetchedRes = await fetch(targetUrl);
     const data = await fetchedRes.json();
 
-    console.log("fetched data:");
-
-    console.table(data);
+    // console.log("fetched data:");
+    // console.table(data);
 
     fetchedData = data;
   } catch (error) {

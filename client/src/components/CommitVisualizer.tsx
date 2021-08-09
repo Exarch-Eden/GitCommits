@@ -1,11 +1,17 @@
-import React from 'react'
+import React, { FC } from "react";
+import { useAppSelector } from "../redux/hooks";
+import { selectCommitData } from "../redux/reducers/commitDataSlice";
 
-const CommitVisualizer = () => {
+export interface CommitVisualizerProps {}
+
+const CommitVisualizer: FC<CommitVisualizerProps> = () => {
+  const commitData = useAppSelector(selectCommitData);
+
   return (
     <div className="commitVisualizerContainer">
-      
+      {JSON.stringify(commitData)}
     </div>
-  )
-}
+  );
+};
 
-export default CommitVisualizer
+export default CommitVisualizer;

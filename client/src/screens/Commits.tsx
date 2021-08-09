@@ -5,21 +5,24 @@ import LinkField from "../components/LinkField";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
 
-/**
- * Regex for extracting the GitHub username from the link input.
- */
+/** Regex for extracting the GitHub username from the link input. */
 const USER_NAME_REGEX = /(?<=https:\/\/github\.com\/)(.*)(?=\/)/;
 
-/**
- * Regex for extracting the GitHub repo name from the link input.
- */
+/** Regex for extracting the GitHub repo name from the link input. */
 const REPO_NAME_REGEX = /[^\/]+$/;
+
+/**
+ * Only used for development builds. The local server
+ * endpoint URI to fetch commit data from.
+ */
+const LOCAL_SERVER_BASE_URL = "http://localhost:5000/commits";
 
 /**
  * Screen component responsible for visualizing GitHub
  * repository commits.
  */
 const Commits = () => {
+  // the link input inserted by the user in the LinkField component
   const linkInput = useAppSelector(selectLinkInput);
 
   /**
@@ -38,13 +41,13 @@ const Commits = () => {
       // will throw an error if it fails to find
       // a user or repo name from the link
       parsedLink = parseLink(linkInput);
+
+      // fetch commits once parsing is successful
+      await fetchCommitData(parsedLink.userName, parsedLink.repoName);
     } catch (error) {
       console.error(error);
-      return;
     }
-
-    // fetch commits once parsing is successful
-    fetchCommitData(parsedLink.userName, parsedLink.repoName);
+    console.log("end of inputOnEnterKeyDown()");
   }, [linkInput]);
 
   return (
@@ -103,9 +106,34 @@ const parseLink = (link: string): ParsedLink => {
  */
 const fetchCommitData = async (userName: string, repoName: string) => {
   console.log("fetchCommitData()");
-  console.log("parameters: ");
-  console.table({ userName, repoName });
+
+  // holds the fetched data
+  let fetchedData = {};
+
+  // console.log("parameters: ");
+  // console.table({ userName, repoName });
+
+  const targetUrl = `${LOCAL_SERVER_BASE_URL}?owner=${userName}&repo=${repoName}`;
+  // console.log("targetUrl: ", targetUrl);
+
+  try {
+    // IMPORTANT: a maximum of 30 commits can be fetched per request
+    // be sure to account for that later
+    const fetchedRes = await fetch(targetUrl);
+    const data = await fetchedRes.json();
+
+    console.log("fetched data:");
+
+    console.table(data);
+
+    fetchedData = data;
+  } catch (error) {
+    throw new Error(error);
+  }
+
   console.log("end of fetchCommitData()");
+
+  return fetchedData;
 };
 
 export default Commits;

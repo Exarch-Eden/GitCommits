@@ -8,11 +8,18 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 app.get("/", async (req, res) => {
   res.status(200).send('Endpoint "/" received your GET request');
 });
 
-app.get("/commit", async (req, res) => {
+app.get("/commits", async (req, res) => {
   // mandatory query parameters
   const ownerName = req.query.owner;
   const repoName = req.query.repo;

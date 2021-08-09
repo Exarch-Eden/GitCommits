@@ -8,14 +8,13 @@ const App: FC = () => {
   return (
     <div className="App">
       <header className="headerContainer">
-        <p>Header</p>
+        {/* <p>Header</p> */}
       </header>
       <main className="mainContainer">
-        <p>Main</p>
         <Commits />
       </main>
       <footer className="footerContainer paddedContainer">
-        <p>Website by Kent Claudio</p>
+        {/* <p>Website by Kent Claudio</p> */}
       </footer>
     </div>
   );

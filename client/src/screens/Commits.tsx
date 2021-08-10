@@ -67,16 +67,18 @@ const Commits = () => {
     console.log("end of inputOnEnterKeyDown()");
   }, [linkInput, dispatch]);
 
-  // for testing purposes
-  // logs commitData redux state
-  useEffect(() => {
-    console.log("redux commitData: ");
-    console.table(commitData);
-  }, [commitData]);
+  // // for testing purposes
+  // // logs commitData redux state
+  // useEffect(() => {
+  //   console.log("redux commitData: ");
+  //   console.table(commitData);
+  // }, [commitData]);
 
   return (
-    <div>
+    <div className="commitsScreenContainer">
       <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
+      <p>Commit Visualizer</p>
+      <CommitVisualizer />
     </div>
   );
 };

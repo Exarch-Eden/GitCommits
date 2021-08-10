@@ -1,12 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { CommitArray } from "../../types";
 import { RootState } from "../store";
 
 export interface CommitDataState {
-  value: any;
+  value: CommitArray;
 }
 
 const initialState: CommitDataState = {
-  value: {},
+  value: [],
 };
 
 export const commitDataSlice = createSlice({

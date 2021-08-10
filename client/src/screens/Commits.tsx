@@ -9,6 +9,7 @@ import {
   setCommitData,
 } from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
+import { CommitArray } from "../types";
 
 /** Regex for extracting the GitHub username from the link input. */
 const USER_NAME_REGEX = /(?<=https:\/\/github\.com\/)(.*)(?=\/)/;
@@ -52,10 +53,11 @@ const Commits = () => {
       parsedLink = parseLink(linkInput);
 
       // fetch commits once parsing is successful
-      const fetchedCommitData = await fetchCommitData(
+      const fetchedCommitData: CommitArray = await fetchCommitData(
         parsedLink.userName,
         parsedLink.repoName
       );
+      
       console.log("fetched commitData:");
       console.table(fetchedCommitData);
 
@@ -130,11 +132,11 @@ const parseLink = (link: string): ParsedLink => {
  *
  * @param searchInput
  */
-const fetchCommitData = async (userName: string, repoName: string) => {
+const fetchCommitData = async (userName: string, repoName: string): Promise<CommitArray> => {
   console.log("fetchCommitData()");
 
   // holds the fetched data
-  let fetchedData = {};
+  let fetchedData = [];
 
   // console.log("parameters: ");
   // console.table({ userName, repoName });

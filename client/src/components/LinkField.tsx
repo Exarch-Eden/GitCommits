@@ -5,6 +5,8 @@ import { TextField } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectLinkInput, setInput } from "../redux/reducers/linkInputSlice";
 
+import "../styles/LinkField.css"
+
 const ENTER_KEY = "Enter";
 
 interface LinkFieldProps {
@@ -21,7 +23,7 @@ const LinkField: FC<LinkFieldProps> = ({ onEnterKeyDown }) => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="linkField">
+    <div className="linkFieldContainer">
       <TextField
         value={linkInput}
         onChange={(event) => {
@@ -36,6 +38,7 @@ const LinkField: FC<LinkFieldProps> = ({ onEnterKeyDown }) => {
         label="Search Input"
         margin="normal"
         variant="outlined"
+        fullWidth
       />
     </div>
   );

@@ -41,6 +41,15 @@ export interface SingleCommit {
 
 export type CommitArray = SingleCommit[];
 
+/** Commit information deemed important to be visualized */
+export interface CommitInfo {
+  message?: string;
+  author?: {
+    realName?: string;
+    userName?: string;
+  },
+}
+
 // Example data from official GitHub API web page
 // [
 //   {

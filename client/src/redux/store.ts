@@ -1,9 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import counterReducer from '../features/counter/counterSlice';
+import linkInputReducer from './reducers/linkInputSlice';
+import commitDataReducer from './reducers/commitDataSlice';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
+    link: linkInputReducer,
+    commits: commitDataReducer,
   },
 });
 

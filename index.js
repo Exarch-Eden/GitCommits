@@ -69,12 +69,18 @@ app.get("/branches", async (req, res) =>  {
 
   let data = {};
   
-  // github API url
-  const targetFetchUrl = `https://api.github.com/repos/${ownerName}/${repoName}/branches`;
+  // github API url to extract the branch list
+  const branchListUrl = `https://api.github.com/repos/${ownerName}/${repoName}/branches`;
+  // github API url to extract the default branch
+  const defaultBranchUrl = `https://api.github.com/repos/${ownerName}/${repoName}`;
 
   try {
-    const fetchedRes = await fetch(targetFetchUrl);
-    data = await fetchedRes.json();
+    const fetchedBranchList = await fetch(branchListUrl);
+    data.branchList = await fetchedBranchList.json();
+
+    const fetchedRepoData = await fetch(defaultBranchUrl)
+    const repoDataJson = await fetchedRepoData.json();
+    data.defaultBranch = repoDataJson.default_branch;
   } catch (error) {
     console.log(
       "--------------ERROR--------------",

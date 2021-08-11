@@ -45,7 +45,7 @@ app.get("/commits", async (req, res) => {
   try {
     const fetchedRes = await fetch(targetFetchUrl);
     data = await fetchedRes.json();
-    console.log("\n", data, "\n");
+    // console.log("\n", data, "\n");
   } catch (error) {
     console.log(
       "--------------ERROR--------------",
@@ -53,6 +53,35 @@ app.get("/commits", async (req, res) => {
       "---------------------------------"
     );
     res.status(500).send();
+    return;
+  }
+
+  res.status(200).send(JSON.stringify(data));
+});
+
+/**
+ * Retrieves the GitHub repository's branch list.
+ */
+app.get("/branches", async (req, res) =>  {
+  // mandatory query parameters
+  const ownerName = req.query.owner;
+  const repoName = req.query.repo;
+
+  let data = {};
+  
+  // github API url
+  const targetFetchUrl = `https://api.github.com/repos/${ownerName}/${repoName}/branches`;
+
+  try {
+    const fetchedRes = await fetch(targetFetchUrl);
+    data = await fetchedRes.json();
+  } catch (error) {
+    console.log(
+      "--------------ERROR--------------",
+      error,
+      "---------------------------------"
+    );
+    res.status(500).send(error);
     return;
   }
 

@@ -21,23 +21,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("*", (req, res) => {
-  const indexFile = CLIENT_BUILD_PATH + "/index.html";
-  const indexDoesNotExistMessage = "Index file does not exist.";
-
-  // index file exists
-  if (fs.existsSync(indexFile)) {
-    res.sendFile(indexFile);
-    res.status = 200;
-    res.end();
-    return;
-  }
-
-  // index file does not exist
-  console.log(indexDoesNotExistMessage);
-  res.status(404).send(indexDoesNotExistMessage);
-});
-
 app.get("/commits", async (req, res) => {
   // mandatory query parameters
   const ownerName = req.query.owner;
@@ -75,6 +58,24 @@ app.get("/commits", async (req, res) => {
 
   res.status(200).send(JSON.stringify(data));
 });
+
+app.get("*", (req, res) => {
+  const indexFile = CLIENT_BUILD_PATH + "/index.html";
+  const indexDoesNotExistMessage = "Index file does not exist.";
+
+  // index file exists
+  if (fs.existsSync(indexFile)) {
+    res.sendFile(indexFile);
+    res.status = 200;
+    res.end();
+    return;
+  }
+
+  // index file does not exist
+  console.log(indexDoesNotExistMessage);
+  res.status(404).send(indexDoesNotExistMessage);
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server listening on PORT ${PORT}`);

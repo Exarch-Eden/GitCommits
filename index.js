@@ -6,17 +6,22 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_BUILD_PATH = __dirname + "/client/build";
 
+app.use(express.static(CLIENT_BUILD_PATH));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, Content-Length, X-Requested-With"
+  );
   next();
 });
 
-app.get("*", async (req, res) => {
+app.get("*", (req, res) => {
   const indexFile = CLIENT_BUILD_PATH + "/index.html";
   const indexDoesNotExistMessage = "Index file does not exist.";
 

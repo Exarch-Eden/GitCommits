@@ -27,13 +27,15 @@ app.get("*", (req, res) => {
 
   // index file exists
   if (fs.existsSync(indexFile)) {
-    res.sendFile(indexFile).status(200).end();
+    res.sendFile(indexFile);
+    res.status = 200;
+    res.end();
     return;
   }
 
   // index file does not exist
   console.log(indexDoesNotExistMessage);
-  res.send(indexDoesNotExistMessage).status(404).end();
+  res.status(404).send(indexDoesNotExistMessage);
 });
 
 app.get("/commits", async (req, res) => {

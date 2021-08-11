@@ -7,8 +7,12 @@ import LinkField from "../components/LinkField";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setCommitData } from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
-import { setBranch } from "../redux/reducers/repoBranchSlice";
-import { CommitArray } from "../types";
+import {
+  setBranch,
+  setBranchList,
+  setDefaultBranch,
+} from "../redux/reducers/repoBranchSlice";
+import { BranchData, BranchList, CommitArray } from "../types";
 
 /** Regex for extracting the GitHub username from the link input. */
 const USER_NAME_REGEX = /(?<=https:\/\/github\.com\/)(.*)(?=\/)/;
@@ -58,17 +62,24 @@ const Commits = () => {
         parsedLink.repoName
       );
 
-      console.log("fetched commitData:");
-      console.table(fetchedCommitData);
+      // console.log("fetched commitData:");
+      // console.table(fetchedCommitData);
 
+      // set the commit data
       dispatch(setCommitData(fetchedCommitData));
 
-      const fetchedBranchList = await fetchBranchList(
+      // fetch branch data
+      const fetchedBranchData: BranchData = await fetchBranches(
         parsedLink.userName,
         parsedLink.repoName
       );
 
-      dispatch(setBranch(fetchedBranchList));
+      // set the branch list
+      dispatch(setBranchList(fetchedBranchData.branchList));
+      // set the default branch
+      dispatch(setDefaultBranch(fetchedBranchData.defaultBranch));
+      // set the current branch as the default
+      dispatch(setBranch(fetchedBranchData.defaultBranch));
     } catch (error) {
       console.error(error);
     }
@@ -172,21 +183,21 @@ const fetchCommitData = async (
 };
 
 /**
- * Fetches the branch list of the repository based on the given
- * GitHub username and repo name.
- * 
+ * Fetches the branch list and default branch of the repository
+ * based on the given GitHub username and repo name.
+ *
  * @param userName The owner of the target repository.
  * @param repoName The target repository's name.
  * @returns The fetched branch list.
  */
-const fetchBranchList = async (
+const fetchBranches = async (
   userName: string,
   repoName: string
 ): Promise<any> => {
   console.log("fetchBranchList()");
 
-  // holds the fetched branch list
-  let fetchedData = [];
+  // holds the fetched branch list and default branch
+  let fetchedData: BranchData = { defaultBranch: "", branchList: [] };
 
   const targetUrl = `${productionEnvCheck(
     BRANCHES_ENDPOINT
@@ -195,6 +206,8 @@ const fetchBranchList = async (
   try {
     const fetchedRes = await fetch(targetUrl);
     fetchedData = await fetchedRes.json();
+    console.log("fetched branches:");
+    console.log(fetchedData);
   } catch (error) {
     throw new Error(error);
   }

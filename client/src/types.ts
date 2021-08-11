@@ -50,6 +50,12 @@ export interface CommitInfo {
   },
 }
 
+interface SingleBranch {
+  name?: string;
+}
+
+export type BranchList = SingleBranch[];
+
 // Example data from official GitHub API web page
 // [
 //   {

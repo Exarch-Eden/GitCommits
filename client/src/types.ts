@@ -56,6 +56,11 @@ interface SingleBranch {
 
 export type BranchList = SingleBranch[];
 
+export interface BranchData {
+  defaultBranch: string;
+  branchList: BranchList;
+}
+
 // Example data from official GitHub API web page
 // [
 //   {

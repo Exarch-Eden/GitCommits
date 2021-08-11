@@ -94,7 +94,7 @@ export type ParsedLink = {
  * Parses the given link for a GitHub username and repository name.
  * Will throw an error if it fails to find either one.
  *
- * @param link The GitHub repo link to validate.
+ * @param link The GitHub repo link to validate and parse.
  * @returns An object containing both username and repo name.
  */
 const parseLink = (link: string): ParsedLink => {
@@ -130,7 +130,9 @@ const parseLink = (link: string): ParsedLink => {
  * Fetches commit data of the default branch based on the given
  * GitHub username and repo name.
  *
- * @param searchInput
+ * @param userName The owner of the target repository.
+ * @param repoName The target repository's name.
+ * @returns The fetched commit data.
  */
 const fetchCommitData = async (
   userName: string,
@@ -153,14 +155,11 @@ const fetchCommitData = async (
     // IMPORTANT: a maximum of 30 commits can be fetched per request
     // be sure to account for that later
     const fetchedRes = await fetch(targetUrl);
-    console.log("fetchedRes: ");
-    console.log(fetchedRes);
+    // console.log("fetchedRes: ");
+    // console.log(fetchedRes);
     const data = await fetchedRes.json();
-    console.log("data: ");
-    console.log(data);
-
-    // console.log("fetched data:");
-    // console.table(data);
+    // console.log("data: ");
+    // console.log(data);
 
     fetchedData = data;
   } catch (error) {
@@ -172,6 +171,14 @@ const fetchCommitData = async (
   return fetchedData;
 };
 
+/**
+ * Fetches the branch list of the repository based on the given
+ * GitHub username and repo name.
+ * 
+ * @param userName The owner of the target repository.
+ * @param repoName The target repository's name.
+ * @returns The fetched branch list.
+ */
 const fetchBranchList = async (
   userName: string,
   repoName: string
@@ -197,6 +204,15 @@ const fetchBranchList = async (
   return fetchedData;
 };
 
+/**
+ * Helper function for target URL generation when fetching data.
+ * Prepends localhost to the given endpoint if node environment
+ * is not in production.
+ *
+ * @param endpoint The local server endpoint to request to.
+ * @returns The endpoint by itself if in production environment; otherwise,
+ * localhost:5000 prepended to the endpoint.
+ */
 const productionEnvCheck = (endpoint: string): string => {
   return process.env.NODE_ENV === "production"
     ? endpoint

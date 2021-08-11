@@ -4,6 +4,7 @@ const fetch = require("node-fetch");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const CLIENT_BUILD_PATH = __dirname + "/client/build";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -15,8 +16,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", async (req, res) => {
-  res.status(200).send('Endpoint "/" received your GET request');
+app.get("*", async (req, res) => {
+  const indexFile = CLIENT_BUILD_PATH + "/index.html";
+  const indexDoesNotExistMessage = "Index file does not exist.";
+
+  // index file exists
+  if (fs.existsSync(indexFile)) {
+    res.sendFile(indexFile).status(200).end();
+    return;
+  }
+
+  // index file does not exist
+  console.log(indexDoesNotExistMessage);
+  res.send(indexDoesNotExistMessage).status(404).end();
 });
 
 app.get("/commits", async (req, res) => {

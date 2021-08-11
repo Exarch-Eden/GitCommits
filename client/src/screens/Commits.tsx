@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
+import BranchSelector from "../components/BranchSelector";
 import CommitVisualizer from "../components/CommitVisualizer";
 import LinkField from "../components/LinkField";
 
 // redux imports
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import {
-  selectCommitData,
-  setCommitData,
-} from "../redux/reducers/commitDataSlice";
+import { setCommitData } from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
+import { setBranch } from "../redux/reducers/repoBranchSlice";
 import { CommitArray } from "../types";
 
 /** Regex for extracting the GitHub username from the link input. */
@@ -21,9 +20,10 @@ const REPO_NAME_REGEX = /[^\/]+$/;
  * Only used for development builds. The local server
  * endpoint URI to fetch commit data from.
  */
-const LOCAL_SERVER_BASE_URL = "http://localhost:5000/commits";
+const LOCAL_SERVER_BASE_URL = "http://localhost:5000";
 
-const LOCAL_SERVER_BUILD_URL = "/commits";
+const COMMITS_ENDPOINT = "/commits";
+const BRANCHES_ENDPOINT = "/branches";
 
 /**
  * Screen component responsible for visualizing GitHub
@@ -32,8 +32,6 @@ const LOCAL_SERVER_BUILD_URL = "/commits";
 const Commits = () => {
   // the link input inserted by the user in the LinkField component
   const linkInput = useAppSelector(selectLinkInput);
-  // purely for testing purposes
-  const commitData = useAppSelector(selectCommitData);
   // redux store dispatch mainly used to set the commit data after fetching
   const dispatch = useAppDispatch();
 
@@ -64,22 +62,23 @@ const Commits = () => {
       console.table(fetchedCommitData);
 
       dispatch(setCommitData(fetchedCommitData));
+
+      const fetchedBranchList = await fetchBranchList(
+        parsedLink.userName,
+        parsedLink.repoName
+      );
+
+      dispatch(setBranch(fetchedBranchList));
     } catch (error) {
       console.error(error);
     }
     console.log("end of inputOnEnterKeyDown()");
   }, [linkInput, dispatch]);
 
-  // // for testing purposes
-  // // logs commitData redux state
-  // useEffect(() => {
-  //   console.log("redux commitData: ");
-  //   console.table(commitData);
-  // }, [commitData]);
-
   return (
     <div className="commitsScreenContainer">
       <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
+      <BranchSelector />
       <p>Commit Visualizer</p>
       <CommitVisualizer />
     </div>
@@ -145,11 +144,9 @@ const fetchCommitData = async (
   // console.log("parameters: ");
   // console.table({ userName, repoName });
 
-  const targetUrl = `${
-    process.env.NODE_ENV === "production"
-      ? LOCAL_SERVER_BUILD_URL
-      : LOCAL_SERVER_BASE_URL
-  }?owner=${userName}&repo=${repoName}`;
+  const targetUrl = `${productionEnvCheck(
+    COMMITS_ENDPOINT
+  )}?owner=${userName}&repo=${repoName}`;
   console.log("targetUrl: ", targetUrl);
 
   try {
@@ -173,6 +170,37 @@ const fetchCommitData = async (
   console.log("end of fetchCommitData()");
 
   return fetchedData;
+};
+
+const fetchBranchList = async (
+  userName: string,
+  repoName: string
+): Promise<any> => {
+  console.log("fetchBranchList()");
+
+  // holds the fetched branch list
+  let fetchedData = [];
+
+  const targetUrl = `${productionEnvCheck(
+    BRANCHES_ENDPOINT
+  )}?owner=${userName}&repo=${repoName}`;
+
+  try {
+    const fetchedRes = await fetch(targetUrl);
+    fetchedData = await fetchedRes.json();
+  } catch (error) {
+    throw new Error(error);
+  }
+
+  console.log("end of fetchBranchList()");
+
+  return fetchedData;
+};
+
+const productionEnvCheck = (endpoint: string): string => {
+  return process.env.NODE_ENV === "production"
+    ? endpoint
+    : LOCAL_SERVER_BASE_URL + endpoint;
 };
 
 export default Commits;

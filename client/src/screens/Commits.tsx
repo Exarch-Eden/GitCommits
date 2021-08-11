@@ -23,6 +23,8 @@ const REPO_NAME_REGEX = /[^\/]+$/;
  */
 const LOCAL_SERVER_BASE_URL = "http://localhost:5000/commits";
 
+const LOCAL_SERVER_BUILD_URL = "/commits";
+
 /**
  * Screen component responsible for visualizing GitHub
  * repository commits.
@@ -141,7 +143,7 @@ const fetchCommitData = async (userName: string, repoName: string): Promise<Comm
   // console.log("parameters: ");
   // console.table({ userName, repoName });
 
-  const targetUrl = `${LOCAL_SERVER_BASE_URL}?owner=${userName}&repo=${repoName}`;
+  const targetUrl = `${LOCAL_SERVER_BUILD_URL}?owner=${userName}&repo=${repoName}`;
   // console.log("targetUrl: ", targetUrl);
 
   try {

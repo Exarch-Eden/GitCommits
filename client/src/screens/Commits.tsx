@@ -59,12 +59,11 @@ const Commits = () => {
         parsedLink.userName,
         parsedLink.repoName
       );
-      
+
       console.log("fetched commitData:");
       console.table(fetchedCommitData);
 
       dispatch(setCommitData(fetchedCommitData));
-      
     } catch (error) {
       console.error(error);
     }
@@ -134,7 +133,10 @@ const parseLink = (link: string): ParsedLink => {
  *
  * @param searchInput
  */
-const fetchCommitData = async (userName: string, repoName: string): Promise<CommitArray> => {
+const fetchCommitData = async (
+  userName: string,
+  repoName: string
+): Promise<CommitArray> => {
   console.log("fetchCommitData()");
 
   // holds the fetched data
@@ -143,8 +145,12 @@ const fetchCommitData = async (userName: string, repoName: string): Promise<Comm
   // console.log("parameters: ");
   // console.table({ userName, repoName });
 
-  const targetUrl = `${LOCAL_SERVER_BUILD_URL}?owner=${userName}&repo=${repoName}`;
-  // console.log("targetUrl: ", targetUrl);
+  const targetUrl = `${
+    process.env.NODE_ENV === "production"
+      ? LOCAL_SERVER_BUILD_URL
+      : LOCAL_SERVER_BASE_URL
+  }?owner=${userName}&repo=${repoName}`;
+  console.log("targetUrl: ", targetUrl);
 
   try {
     // IMPORTANT: a maximum of 30 commits can be fetched per request

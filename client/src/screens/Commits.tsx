@@ -150,7 +150,11 @@ const fetchCommitData = async (userName: string, repoName: string): Promise<Comm
     // IMPORTANT: a maximum of 30 commits can be fetched per request
     // be sure to account for that later
     const fetchedRes = await fetch(targetUrl);
+    console.log("fetchedRes: ");
+    console.log(fetchedRes);
     const data = await fetchedRes.json();
+    console.log("data: ");
+    console.log(data);
 
     // console.log("fetched data:");
     // console.table(data);

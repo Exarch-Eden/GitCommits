@@ -227,6 +227,10 @@ export const fetchCommitData = async (
     // console.log("data: ");
     // console.log(data);
 
+    if (data.message === "Not Found") {
+      throw new Error("Invalid link.")
+    }
+
     fetchedData = data;
   } catch (error) {
     throw new Error(error);

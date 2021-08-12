@@ -1,8 +1,13 @@
-// type imports 
+// type imports
 import { BranchData, CommitArray, ParsedLink } from "../types";
 
 // endpoint constant imports
-import { BRANCHES_ENDPOINT, COMMITS_ENDPOINT, LOCAL_SERVER_BASE_URL } from "./endpoints";
+import {
+  BRANCHES_ENDPOINT,
+  COMMITS_ENDPOINT,
+  LOCAL_SERVER_BASE_URL,
+  SINGLE_ENDPOINT,
+} from "./endpoints";
 
 // regex constant imports
 import { REPO_NAME_REGEX, USER_NAME_REGEX } from "./regex";
@@ -16,7 +21,7 @@ import { REPO_NAME_REGEX, USER_NAME_REGEX } from "./regex";
  * @param branch Optional. The branch to fetch commits from.
  * @returns The fetched commit data.
  */
- export const fetchCommitData = async (
+export const fetchCommitData = async (
   userName: string,
   repoName: string,
   branch?: string
@@ -46,7 +51,7 @@ import { REPO_NAME_REGEX, USER_NAME_REGEX } from "./regex";
     // rather than an array
     if (data.message === "Not Found") {
       // the user has input an invalid GitHub repo link
-      throw new Error("Invalid link.")
+      throw new Error("Invalid link.");
     }
 
     fetchedData = data;
@@ -67,10 +72,10 @@ import { REPO_NAME_REGEX, USER_NAME_REGEX } from "./regex";
  * @param repoName The target repository's name.
  * @returns The fetched branch list.
  */
- export const fetchBranches = async (
+export const fetchBranches = async (
   userName: string,
   repoName: string
-): Promise<any> => {
+): Promise<BranchData> => {
   console.log("fetchBranchList()");
 
   // holds the fetched branch list and default branch
@@ -96,13 +101,47 @@ import { REPO_NAME_REGEX, USER_NAME_REGEX } from "./regex";
 };
 
 /**
+ * Fetches the commit data of an individual commit with the given
+ * GitHub username, repo name, and commit sha.
+ * 
+ * @param userName The owner of the target repository.
+ * @param repoName The target repository's name.
+ * @param sha The target commit's sha.
+ * @returns The fetched branch list.
+ */
+export const fetchSingleCommitData = async (
+  userName: string,
+  repoName: string,
+  sha: string
+): Promise<any> => {
+  console.log("fetchSingleCommitData()");
+
+  const targetUrl = `${productionEnvCheck(
+    SINGLE_ENDPOINT
+  )}?owner=${userName}&repo=${repoName}&sha=${sha}`;
+
+  let data = {};
+
+  try {
+    const fetchedRes = await fetch(targetUrl);
+    data = await fetchedRes.json();
+  } catch (error) {
+    throw new Error(error);
+  }
+
+  console.log("end of fetchSingleCommitData()");
+
+  return data;
+};
+
+/**
  * Parses the given link for a GitHub username and repository name.
  * Will throw an error if it fails to find either one.
  *
  * @param link The GitHub repo link to validate and parse.
  * @returns An object containing both username and repo name.
  */
- export const parseLink = (link: string): ParsedLink => {
+export const parseLink = (link: string): ParsedLink => {
   console.log("parseLink()");
 
   const userName = link.match(USER_NAME_REGEX);
@@ -140,7 +179,7 @@ import { REPO_NAME_REGEX, USER_NAME_REGEX } from "./regex";
  * @returns The endpoint by itself if in production environment; otherwise,
  * localhost:5000 prepended to the endpoint.
  */
- const productionEnvCheck = (endpoint: string): string => {
+const productionEnvCheck = (endpoint: string): string => {
   return process.env.NODE_ENV === "production"
     ? endpoint
     : LOCAL_SERVER_BASE_URL + endpoint;

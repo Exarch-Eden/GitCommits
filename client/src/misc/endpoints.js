@@ -6,3 +6,4 @@
 
  export const COMMITS_ENDPOINT = "/commits";
  export const BRANCHES_ENDPOINT = "/branches";
+ export const SINGLE_ENDPOINT = "/single";

@@ -10,13 +10,20 @@ export interface CommitInfoProps {
 const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
   return (
     <div className="singleCommitVisualizerContainer">
+      <div className="authorContainer">
+        <a href={commitInfo.author?.profile} target="_blank" rel="noreferrer">
+          <img
+            src={commitInfo.author?.avatar}
+            alt={`${commitInfo.author?.userName} avatar`}
+            className="authorAvatarImage"
+          />
+        </a>
+        <a href={commitInfo.author?.profile} target="_blank" rel="noreferrer">
+          <p>{commitInfo.author?.userName}</p>
+        </a>
+      </div>
       {/* <p>{moddedMessage}</p> */}
       {commitInfo.message ? renderCommitMessage(commitInfo.message) : null}
-      <div>
-        <p>
-          Author: {commitInfo.author?.userName} ({commitInfo.author?.realName})
-        </p>
-      </div>
     </div>
   );
 };
@@ -31,7 +38,7 @@ const renderCommitMessage = (commitMessage: string): ReactElement => {
   const splitMessages = commitMessage.split("\n");
 
   return (
-    <ul>
+    <ul className="commitMessageContainer">
       {splitMessages.map((curLine: string, index: number) => {
         return <li key={index}>{curLine}</li>;
       })}

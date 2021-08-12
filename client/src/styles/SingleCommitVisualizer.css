@@ -2,3 +2,24 @@
   border: 1px solid #d6d6d6;
   margin: 10px 0;
 }
+
+.authorContainer {
+  display: flex;
+  align-items: center;
+  /* margin: 0 15px; */
+}
+
+.authorContainer > * {
+  margin-left: 15px;
+}
+
+.authorAvatarImage {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.commitMessageContainer {
+  text-align: left;
+  margin-top: 0;
+}

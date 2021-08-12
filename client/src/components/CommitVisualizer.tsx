@@ -4,7 +4,7 @@ import { selectCommitData } from "../redux/reducers/commitDataSlice";
 import { CommitArray, CommitInfo, SingleCommit } from "../types";
 import SingleCommitVisualizer from "./SingleCommitVisualizer";
 
-import "../styles/CommitVisualizer.css"
+import "../styles/CommitVisualizer.css";
 
 export interface CommitVisualizerProps {}
 
@@ -35,12 +35,13 @@ const renderCommitInfo = (rawCommitArray: CommitArray): ReactElement => {
   return (
     <>
       {rawCommitArray.map((curCommit: SingleCommit, index: number) => {
-
         const commitInfo: CommitInfo = {
           message: curCommit.commit?.message,
           author: {
             realName: curCommit.commit?.author?.name,
             userName: curCommit.author?.login,
+            avatar: curCommit.author?.avatar_url,
+            profile: curCommit.author?.html_url,
           },
         };
 

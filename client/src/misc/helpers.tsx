@@ -1,5 +1,5 @@
 // type imports
-import { BranchData, CommitArray, ParsedLink } from "../types";
+import { BranchData, CommitArray, ParsedLink, SingleCommit } from "../types";
 
 // endpoint constant imports
 import {
@@ -46,6 +46,11 @@ export const fetchCommitData = async (
     // be sure to account for that later
     const fetchedRes = await fetch(targetUrl);
     const data = await fetchedRes.json();
+
+    // IMPORTANT: The bottom code block should not exist in
+    // the first place
+    // REMOVE it as soon as the local server has proper
+    // error-handling for these types of errors
 
     // returned object may contain an error message
     // rather than an array
@@ -113,14 +118,14 @@ export const fetchSingleCommitData = async (
   userName: string,
   repoName: string,
   sha: string
-): Promise<any> => {
+): Promise<SingleCommit> => {
   console.log("fetchSingleCommitData()");
 
   const targetUrl = `${productionEnvCheck(
     SINGLE_ENDPOINT
   )}?owner=${userName}&repo=${repoName}&sha=${sha}`;
 
-  let data = {};
+  let data: SingleCommit = {};
 
   try {
     const fetchedRes = await fetch(targetUrl);

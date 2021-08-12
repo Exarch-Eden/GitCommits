@@ -25,6 +25,24 @@ interface Commit {
   comment_count?: number;
 }
 
+/** Object holding the entire data of an individual file. */
+export interface File {
+  /** Number of line changes to the file. */
+  changes?: number;
+  /** Number of line additions to the file. */
+  additions?: number;
+  /** Number of line deletions to the file. */
+  deletions?: number;
+  /** The affected file's name. */
+  filename?: string;
+  /** GitHub website url for the specific file change. */
+  blob_url?: string;
+  /** Link leading to a page containing the raw text of the changed file. */
+  raw_url?: string;
+  /** Type of change to the file. */
+  status?: string;
+}
+
 /** Object holding the entire data of an individual commit. */
 export interface SingleCommit {
   /** GitHub API url for the specific commit */
@@ -39,6 +57,8 @@ export interface SingleCommit {
   author?: User;
   /** Detailed committer information */
   committer?: User;
+  /** Holds all the changed files from this commit. */
+  files?: File[];
 }
 
 export type CommitArray = SingleCommit[];

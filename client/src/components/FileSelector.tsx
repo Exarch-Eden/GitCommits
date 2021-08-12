@@ -8,6 +8,7 @@ import {
   selectCurrentFile,
   selectFileList,
   setCurrentFile,
+  setPatch,
 } from "../redux/reducers/fileChangesSlice";
 
 // type imports
@@ -23,6 +24,11 @@ const FileSelector: FC<FileSelectorProps> = () => {
 
   const dispatch = useAppDispatch();
 
+  const fileOnClick = (fileName: string, filePatch: string) => {
+    dispatch(setCurrentFile(fileName));
+    dispatch(setPatch(filePatch));
+  };
+
   // const renderFileList = (fileList: File[], fileOnClick: (fileName: string) => void): ReactElement => {
   const renderFileList = (fileList: File[]): ReactElement => {
     return (
@@ -31,11 +37,11 @@ const FileSelector: FC<FileSelectorProps> = () => {
           // class name assigned to the currently selected file
           const isActiveClassName =
             curFile.filename === currentFile ? "activeFile" : "";
-          
+
           return (
             <li
               key={index}
-              onClick={() => dispatch(setCurrentFile(curFile.filename!))}
+              onClick={() => fileOnClick(curFile.filename!, curFile.patch!)}
               className={isActiveClassName}
             >
               {curFile.filename}

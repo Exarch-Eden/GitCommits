@@ -38,14 +38,18 @@ app.get("/commits", async (req, res) => {
   console.log("\n", { branch, hash }, "\n");
 
   // github API url
-  const targetFetchUrl = `https://api.github.com/repos/${ownerName}/${repoName}/commits`;
+  let targetFetchUrl = `https://api.github.com/repos/${ownerName}/${repoName}/commits`;
+
+  if (branch) {
+    targetFetchUrl += `?sha=${branch}`
+  }
 
   let data = {};
 
   try {
     const fetchedRes = await fetch(targetFetchUrl);
     data = await fetchedRes.json();
-    console.log("\n", data, "\n");
+    // console.log("\n", data, "\n");
   } catch (error) {
     console.log(
       "--------------ERROR--------------",
@@ -53,6 +57,41 @@ app.get("/commits", async (req, res) => {
       "---------------------------------"
     );
     res.status(500).send();
+    return;
+  }
+
+  res.status(200).send(JSON.stringify(data));
+});
+
+/**
+ * Retrieves the GitHub repository's branch list.
+ */
+app.get("/branches", async (req, res) =>  {
+  // mandatory query parameters
+  const ownerName = req.query.owner;
+  const repoName = req.query.repo;
+
+  let data = {};
+  
+  // github API url to extract the branch list
+  const branchListUrl = `https://api.github.com/repos/${ownerName}/${repoName}/branches`;
+  // github API url to extract the default branch
+  const defaultBranchUrl = `https://api.github.com/repos/${ownerName}/${repoName}`;
+
+  try {
+    const fetchedBranchList = await fetch(branchListUrl);
+    data.branchList = await fetchedBranchList.json();
+
+    const fetchedRepoData = await fetch(defaultBranchUrl)
+    const repoDataJson = await fetchedRepoData.json();
+    data.defaultBranch = repoDataJson.default_branch;
+  } catch (error) {
+    console.log(
+      "--------------ERROR--------------",
+      error,
+      "---------------------------------"
+    );
+    res.status(500).send(error);
     return;
   }
 

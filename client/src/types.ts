@@ -25,6 +25,7 @@ interface Commit {
   comment_count?: number;
 }
 
+/** Object holding the entire data of an individual commit. */
 export interface SingleCommit {
   /** GitHub API url for the specific commit */
   url?: string;
@@ -48,6 +49,18 @@ export interface CommitInfo {
     realName?: string;
     userName?: string;
   },
+}
+
+export interface SingleBranch {
+  name?: string;
+}
+
+export type BranchList = SingleBranch[];
+
+/** The fetched object from local server when fetching for the repo's branch data. */
+export interface BranchData {
+  defaultBranch: string;
+  branchList: BranchList;
 }
 
 // Example data from official GitHub API web page

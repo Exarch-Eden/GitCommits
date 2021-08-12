@@ -1,0 +1,10 @@
+.commitsScreenContainer {
+  text-align: center;
+}
+
+.inputAndButtonContainer {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  width: fit-content;
+}

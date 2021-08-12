@@ -1,15 +1,23 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { Button } from "@material-ui/core";
+import React, { useCallback } from "react";
+import BranchSelector from "../components/BranchSelector";
 import CommitVisualizer from "../components/CommitVisualizer";
 import LinkField from "../components/LinkField";
 
 // redux imports
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import {
-  selectCommitData,
-  setCommitData,
-} from "../redux/reducers/commitDataSlice";
+import { setCommitData } from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
-import { CommitArray } from "../types";
+import {
+  selectCurrentBranch,
+  setBranch,
+  setBranchList,
+  setDefaultBranch,
+} from "../redux/reducers/repoBranchSlice";
+
+import { BranchData, BranchList, CommitArray } from "../types";
+
+import "../styles/Commits.css"
 
 /** Regex for extracting the GitHub username from the link input. */
 const USER_NAME_REGEX = /(?<=https:\/\/github\.com\/)(.*)(?=\/)/;
@@ -21,9 +29,10 @@ const REPO_NAME_REGEX = /[^\/]+$/;
  * Only used for development builds. The local server
  * endpoint URI to fetch commit data from.
  */
-const LOCAL_SERVER_BASE_URL = "http://localhost:5000/commits";
+const LOCAL_SERVER_BASE_URL = "http://localhost:5000";
 
-const LOCAL_SERVER_BUILD_URL = "/commits";
+const COMMITS_ENDPOINT = "/commits";
+const BRANCHES_ENDPOINT = "/branches";
 
 /**
  * Screen component responsible for visualizing GitHub
@@ -32,10 +41,46 @@ const LOCAL_SERVER_BUILD_URL = "/commits";
 const Commits = () => {
   // the link input inserted by the user in the LinkField component
   const linkInput = useAppSelector(selectLinkInput);
-  // purely for testing purposes
-  const commitData = useAppSelector(selectCommitData);
+  // the currently selected branch to fetch commit data from
+  const currentBranch = useAppSelector(selectCurrentBranch);
   // redux store dispatch mainly used to set the commit data after fetching
   const dispatch = useAppDispatch();
+
+  /**
+   * Function called when the user changes branches via BranchSelector component.
+   * Fetches commit data from the newly selected branch.
+   *
+   * @param targetBranch The branch to fetch commits from.
+   */
+  const onBranchChange = useCallback(
+    async (targetBranch: string) => {
+      // holds the parsed user and repo name from the link input
+      let parsedLink: ParsedLink = { userName: "", repoName: "" };
+
+      try {
+        // parse the link for user and repo name
+        // will throw an error if it fails to find
+        // a user or repo name from the link
+        parsedLink = parseLink(linkInput);
+
+        // fetch commits once parsing is successful
+        const fetchedCommitData: CommitArray = await fetchCommitData(
+          parsedLink.userName,
+          parsedLink.repoName,
+          targetBranch
+        );
+
+        // console.log("fetched commitData:");
+        // console.table(fetchedCommitData);
+
+        // set the commit data
+        dispatch(setCommitData(fetchedCommitData));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [linkInput, dispatch]
+  );
 
   /**
    * Function called when the user presses the Enter key after
@@ -59,28 +104,40 @@ const Commits = () => {
         parsedLink.userName,
         parsedLink.repoName
       );
-      
-      console.log("fetched commitData:");
-      console.table(fetchedCommitData);
 
+      // console.log("fetched commitData:");
+      // console.table(fetchedCommitData);
+
+      // set the commit data
       dispatch(setCommitData(fetchedCommitData));
-      
+
+      // fetch branch data
+      const fetchedBranchData: BranchData = await fetchBranches(
+        parsedLink.userName,
+        parsedLink.repoName
+      );
+
+      // set the branch list
+      dispatch(setBranchList(fetchedBranchData.branchList));
+      // set the default branch
+      dispatch(setDefaultBranch(fetchedBranchData.defaultBranch));
+      // set the current branch as the default
+      dispatch(setBranch(fetchedBranchData.defaultBranch));
     } catch (error) {
       console.error(error);
     }
     console.log("end of inputOnEnterKeyDown()");
   }, [linkInput, dispatch]);
 
-  // // for testing purposes
-  // // logs commitData redux state
-  // useEffect(() => {
-  //   console.log("redux commitData: ");
-  //   console.table(commitData);
-  // }, [commitData]);
-
   return (
     <div className="commitsScreenContainer">
-      <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
+      <div className="inputAndButtonContainer">
+        <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
+        <Button variant="contained" color="primary" onClick={inputOnEnterKeyDown}>
+          Fetch
+        </Button>
+      </div>
+      <BranchSelector onBranchChange={onBranchChange} />
       <p>Commit Visualizer</p>
       <CommitVisualizer />
     </div>
@@ -96,7 +153,7 @@ export type ParsedLink = {
  * Parses the given link for a GitHub username and repository name.
  * Will throw an error if it fails to find either one.
  *
- * @param link The GitHub repo link to validate.
+ * @param link The GitHub repo link to validate and parse.
  * @returns An object containing both username and repo name.
  */
 const parseLink = (link: string): ParsedLink => {
@@ -132,9 +189,16 @@ const parseLink = (link: string): ParsedLink => {
  * Fetches commit data of the default branch based on the given
  * GitHub username and repo name.
  *
- * @param searchInput
+ * @param userName The owner of the target repository.
+ * @param repoName The target repository's name.
+ * @param branch Optional. The branch to fetch commits from.
+ * @returns The fetched commit data.
  */
-const fetchCommitData = async (userName: string, repoName: string): Promise<CommitArray> => {
+export const fetchCommitData = async (
+  userName: string,
+  repoName: string,
+  branch?: string
+): Promise<CommitArray> => {
   console.log("fetchCommitData()");
 
   // holds the fetched data
@@ -143,21 +207,29 @@ const fetchCommitData = async (userName: string, repoName: string): Promise<Comm
   // console.log("parameters: ");
   // console.table({ userName, repoName });
 
-  const targetUrl = `${LOCAL_SERVER_BUILD_URL}?owner=${userName}&repo=${repoName}`;
-  // console.log("targetUrl: ", targetUrl);
+  let targetUrl = `${productionEnvCheck(
+    COMMITS_ENDPOINT
+  )}?owner=${userName}&repo=${repoName}`;
+
+  if (branch) {
+    targetUrl += `&branch=${branch}`;
+  }
+
+  console.log("targetUrl: ", targetUrl);
 
   try {
     // IMPORTANT: a maximum of 30 commits can be fetched per request
     // be sure to account for that later
     const fetchedRes = await fetch(targetUrl);
-    console.log("fetchedRes: ");
-    console.log(fetchedRes);
+    // console.log("fetchedRes: ");
+    // console.log(fetchedRes);
     const data = await fetchedRes.json();
-    console.log("data: ");
-    console.log(data);
+    // console.log("data: ");
+    // console.log(data);
 
-    // console.log("fetched data:");
-    // console.table(data);
+    if (data.message === "Not Found") {
+      throw new Error("Invalid link.")
+    }
 
     fetchedData = data;
   } catch (error) {
@@ -167,6 +239,56 @@ const fetchCommitData = async (userName: string, repoName: string): Promise<Comm
   console.log("end of fetchCommitData()");
 
   return fetchedData;
+};
+
+/**
+ * Fetches the branch list and default branch of the repository
+ * based on the given GitHub username and repo name.
+ *
+ * @param userName The owner of the target repository.
+ * @param repoName The target repository's name.
+ * @returns The fetched branch list.
+ */
+const fetchBranches = async (
+  userName: string,
+  repoName: string
+): Promise<any> => {
+  console.log("fetchBranchList()");
+
+  // holds the fetched branch list and default branch
+  let fetchedData: BranchData = { defaultBranch: "", branchList: [] };
+
+  const targetUrl = `${productionEnvCheck(
+    BRANCHES_ENDPOINT
+  )}?owner=${userName}&repo=${repoName}`;
+
+  try {
+    const fetchedRes = await fetch(targetUrl);
+    fetchedData = await fetchedRes.json();
+    console.log("fetched branches:");
+    console.log(fetchedData);
+  } catch (error) {
+    throw new Error(error);
+  }
+
+  console.log("end of fetchBranchList()");
+
+  return fetchedData;
+};
+
+/**
+ * Helper function for target URL generation when fetching data.
+ * Prepends localhost to the given endpoint if node environment
+ * is not in production.
+ *
+ * @param endpoint The local server endpoint to request to.
+ * @returns The endpoint by itself if in production environment; otherwise,
+ * localhost:5000 prepended to the endpoint.
+ */
+const productionEnvCheck = (endpoint: string): string => {
+  return process.env.NODE_ENV === "production"
+    ? endpoint
+    : LOCAL_SERVER_BASE_URL + endpoint;
 };
 
 export default Commits;

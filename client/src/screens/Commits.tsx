@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setCommitData } from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
 import {
+  selectCurrentBranch,
   setBranch,
   setBranchList,
   setDefaultBranch,
@@ -36,8 +37,40 @@ const BRANCHES_ENDPOINT = "/branches";
 const Commits = () => {
   // the link input inserted by the user in the LinkField component
   const linkInput = useAppSelector(selectLinkInput);
+  // the currently selected branch to fetch commit data from
+  const currentBranch = useAppSelector(selectCurrentBranch);
   // redux store dispatch mainly used to set the commit data after fetching
   const dispatch = useAppDispatch();
+
+  /**
+   * Function called when the user changes branches.
+   */
+  const onBranchChange = useCallback(async (targetBranch: string) => {
+    // holds the parsed user and repo name from the link input
+    let parsedLink: ParsedLink = { userName: "", repoName: "" };
+
+    try {
+      // parse the link for user and repo name
+      // will throw an error if it fails to find
+      // a user or repo name from the link
+      parsedLink = parseLink(linkInput);
+
+      // fetch commits once parsing is successful
+      const fetchedCommitData: CommitArray = await fetchCommitData(
+        parsedLink.userName,
+        parsedLink.repoName,
+        targetBranch
+      );
+
+      // console.log("fetched commitData:");
+      // console.table(fetchedCommitData);
+
+      // set the commit data
+      dispatch(setCommitData(fetchedCommitData));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [linkInput, dispatch]);
 
   /**
    * Function called when the user presses the Enter key after
@@ -89,7 +122,7 @@ const Commits = () => {
   return (
     <div className="commitsScreenContainer">
       <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
-      <BranchSelector />
+      <BranchSelector onBranchChange={onBranchChange} />
       <p>Commit Visualizer</p>
       <CommitVisualizer />
     </div>
@@ -145,9 +178,10 @@ const parseLink = (link: string): ParsedLink => {
  * @param repoName The target repository's name.
  * @returns The fetched commit data.
  */
-const fetchCommitData = async (
+export const fetchCommitData = async (
   userName: string,
-  repoName: string
+  repoName: string,
+  branch?: string
 ): Promise<CommitArray> => {
   console.log("fetchCommitData()");
 
@@ -157,9 +191,14 @@ const fetchCommitData = async (
   // console.log("parameters: ");
   // console.table({ userName, repoName });
 
-  const targetUrl = `${productionEnvCheck(
+  let targetUrl = `${productionEnvCheck(
     COMMITS_ENDPOINT
   )}?owner=${userName}&repo=${repoName}`;
+
+  if (branch) {
+    targetUrl += `&branch=${branch}`;
+  }
+
   console.log("targetUrl: ", targetUrl);
 
   try {

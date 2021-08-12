@@ -1,0 +1,27 @@
+.branchSelectorContainer {
+  background-color: #dadada;
+  padding: 10px 20px;
+  border-radius: 25px;
+  max-width: 380px;
+  width: 50%;
+  margin: auto;
+  display: flex;
+}
+
+.branchSelectorContainer:first-child {
+  margin-left: 0;
+}
+
+.branchList {
+  text-align: left;
+  margin: auto;
+  padding: 0;
+}
+
+.branchList li {
+  list-style-type: none;
+  padding: 5px;
+  border-radius: 25px;
+  background-color: #ffffff;
+  margin: 10px 0;
+}

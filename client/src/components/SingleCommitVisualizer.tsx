@@ -5,10 +5,12 @@ import { CommitInfo } from "../types";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
-import "../styles/SingleCommitVisualizer.css";
 import { useAppSelector } from "../redux/hooks";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
 import { fetchSingleCommitData, parseLink } from "../misc/helpers";
+
+import "../styles/SingleCommitVisualizer.css";
+import FileSelector from "./FileSelector";
 
 export interface CommitInfoProps {
   commitInfo: CommitInfo;
@@ -52,7 +54,6 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
 
       console.log("fetchedSingleCommitData: ");
       console.log(fetchedSingleCommitData);
-      
     } catch (error) {
       console.error(error);
     }
@@ -60,23 +61,37 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
 
   return (
     <div className="singleCommitVisualizerContainer">
-      <div>
-        <div className="authorContainer">
-          <a href={commitInfo.author?.profile} target="_blank" rel="noreferrer">
-            <img
-              src={commitInfo.author?.avatar}
-              alt={`${commitInfo.author?.userName} avatar`}
-              className="authorAvatarImage"
-            />
-          </a>
-          <a href={commitInfo.author?.profile} target="_blank" rel="noreferrer">
-            <p>{commitInfo.author?.userName}</p>
-          </a>
+      <div className="minimalContainer">
+        <div>
+          <div className="authorContainer">
+            <a
+              href={commitInfo.author?.profile}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <img
+                src={commitInfo.author?.avatar}
+                alt={`${commitInfo.author?.userName} avatar`}
+                className="authorAvatarImage"
+              />
+            </a>
+            <a
+              href={commitInfo.author?.profile}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <p>{commitInfo.author?.userName}</p>
+            </a>
+          </div>
+          {commitInfo.message ? renderCommitMessage(commitInfo.message) : null}
         </div>
-        {commitInfo.message ? renderCommitMessage(commitInfo.message) : null}
+        <div className="expandArrowContainer" onClick={onExpandChange}>
+          {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </div>
       </div>
-      <div className="expandArrowContainer" onClick={onExpandChange}>
-        {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+      <div className="fileChangesContainer" hidden={!expanded}>
+        <p>This is the hidden div. Spooky.</p>
+        <FileSelector />
       </div>
     </div>
   );

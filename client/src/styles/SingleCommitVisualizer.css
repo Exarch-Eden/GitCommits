@@ -1,6 +1,9 @@
 .singleCommitVisualizerContainer {
   border: 1px solid #d6d6d6;
   margin: 10px 0;
+}
+
+.minimalContainer {
   display: flex;
 }
 

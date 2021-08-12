@@ -98,6 +98,33 @@ app.get("/branches", async (req, res) =>  {
   res.status(200).send(JSON.stringify(data));
 });
 
+app.get("/single", async (req, res) => {
+  // mandatory query parameters
+  const ownerName = req.query.owner;
+  const repoName = req.query.repo;
+  const sha = req.query.sha;
+
+  let data = {};
+  
+  // github API url to extract the individual commit data from
+  const commitUrl = `https://api.github.com/repos/${ownerName}/${repoName}/commits/${sha}`;
+
+  try {
+    const fetchedBranchList = await fetch(commitUrl);
+    data = await fetchedBranchList.json();
+  } catch (error) {
+    console.log(
+      "--------------ERROR--------------",
+      error,
+      "---------------------------------"
+    );
+    res.status(500).send(error);
+    return;
+  }
+
+  res.status(200).send(JSON.stringify(data));
+});
+
 app.get("*", (req, res) => {
   const indexFile = CLIENT_BUILD_PATH + "/index.html";
   const indexDoesNotExistMessage = "Index file does not exist.";

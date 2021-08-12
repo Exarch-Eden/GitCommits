@@ -42,29 +42,38 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
    * to display the changed files from this commit.
    */
   const onExpandChange = async () => {
+    // holds the previous value of the expanded state
+    // used to determine whether or not to fetch data
+    const prevState = expanded;
+
     setExpanded(!expanded);
-    console.log("sha: ", commitInfo.sha);
 
-    try {
-      // sha is a required query parameter for the target endpoint
-      if (!commitInfo.sha) {
-        throw new Error("Commit sha not found.");
+    // if previous value is false, then fetch data
+    // otherwise, do not fetch
+    if (!prevState) {
+      console.log("sha: ", commitInfo.sha);
+
+      try {
+        // sha is a required query parameter for the target endpoint
+        if (!commitInfo.sha) {
+          throw new Error("Commit sha not found.");
+        }
+
+        const parsedLink = parseLink(linkInput);
+
+        const fetchedSingleCommitData = await fetchSingleCommitData(
+          parsedLink.userName,
+          parsedLink.repoName,
+          commitInfo.sha
+        );
+
+        console.log("fetchedSingleCommitData: ");
+        console.log(fetchedSingleCommitData);
+
+        dispatch(setFileList(fetchedSingleCommitData.files || []));
+      } catch (error) {
+        console.error(error);
       }
-
-      const parsedLink = parseLink(linkInput);
-
-      const fetchedSingleCommitData = await fetchSingleCommitData(
-        parsedLink.userName,
-        parsedLink.repoName,
-        commitInfo.sha
-      );
-
-      console.log("fetchedSingleCommitData: ");
-      console.log(fetchedSingleCommitData);
-
-      dispatch(setFileList(fetchedSingleCommitData.files || []));
-    } catch (error) {
-      console.error(error);
     }
   };
 

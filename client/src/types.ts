@@ -39,6 +39,8 @@ export interface File {
   blob_url?: string;
   /** Link leading to a page containing the raw text of the changed file. */
   raw_url?: string;
+  /** The changes within the file. */
+  patch?: string;
   /** Type of change to the file. */
   status?: string;
 }

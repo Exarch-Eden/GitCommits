@@ -5,11 +5,13 @@ import { RootState } from "../store";
 export interface FileChangesState {
   current: string;
   fileList: File[];
+  patch: string;
 }
 
 const initialState: FileChangesState = {
   current: "",
   fileList: [],
+  patch: "",
 };
 
 export const fileChangesSlice = createSlice({
@@ -22,12 +24,17 @@ export const fileChangesSlice = createSlice({
     setFileList: (state, action: PayloadAction<File[]>) => {
       state.fileList = action.payload;
     },
+    setPatch: (state, action: PayloadAction<string>) => {
+      state.patch = action.payload;
+    },
   },
 });
 
-export const { setCurrentFile, setFileList } = fileChangesSlice.actions;
+export const { setCurrentFile, setFileList, setPatch } =
+  fileChangesSlice.actions;
 
 export const selectCurrentFile = (state: RootState) => state.file.current;
 export const selectFileList = (state: RootState) => state.file.fileList;
+export const selectPatch = (state: RootState) => state.file.patch;
 
 export default fileChangesSlice.reducer;

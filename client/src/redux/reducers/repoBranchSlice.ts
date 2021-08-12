@@ -32,6 +32,8 @@ export const repoBranchSlice = createSlice({
 
 export const { setBranch, setBranchList, setDefaultBranch } = repoBranchSlice.actions;
 
-export const selectRepoBranch = (state: RootState) => state.branch.value;
+export const selectCurrentBranch = (state: RootState) => state.branch.value;
+export const selectBranchList = (state: RootState) => state.branch.branchList;
+export const selectDefaultBranch = (state: RootState) => state.branch.default;
 
 export default repoBranchSlice.reducer;

@@ -1,3 +1,4 @@
+import { Button } from "@material-ui/core";
 import React, { useCallback } from "react";
 import BranchSelector from "../components/BranchSelector";
 import CommitVisualizer from "../components/CommitVisualizer";
@@ -13,7 +14,10 @@ import {
   setBranchList,
   setDefaultBranch,
 } from "../redux/reducers/repoBranchSlice";
+
 import { BranchData, BranchList, CommitArray } from "../types";
+
+import "../styles/Commits.css"
 
 /** Regex for extracting the GitHub username from the link input. */
 const USER_NAME_REGEX = /(?<=https:\/\/github\.com\/)(.*)(?=\/)/;
@@ -43,34 +47,40 @@ const Commits = () => {
   const dispatch = useAppDispatch();
 
   /**
-   * Function called when the user changes branches.
+   * Function called when the user changes branches via BranchSelector component.
+   * Fetches commit data from the newly selected branch.
+   *
+   * @param targetBranch The branch to fetch commits from.
    */
-  const onBranchChange = useCallback(async (targetBranch: string) => {
-    // holds the parsed user and repo name from the link input
-    let parsedLink: ParsedLink = { userName: "", repoName: "" };
+  const onBranchChange = useCallback(
+    async (targetBranch: string) => {
+      // holds the parsed user and repo name from the link input
+      let parsedLink: ParsedLink = { userName: "", repoName: "" };
 
-    try {
-      // parse the link for user and repo name
-      // will throw an error if it fails to find
-      // a user or repo name from the link
-      parsedLink = parseLink(linkInput);
+      try {
+        // parse the link for user and repo name
+        // will throw an error if it fails to find
+        // a user or repo name from the link
+        parsedLink = parseLink(linkInput);
 
-      // fetch commits once parsing is successful
-      const fetchedCommitData: CommitArray = await fetchCommitData(
-        parsedLink.userName,
-        parsedLink.repoName,
-        targetBranch
-      );
+        // fetch commits once parsing is successful
+        const fetchedCommitData: CommitArray = await fetchCommitData(
+          parsedLink.userName,
+          parsedLink.repoName,
+          targetBranch
+        );
 
-      // console.log("fetched commitData:");
-      // console.table(fetchedCommitData);
+        // console.log("fetched commitData:");
+        // console.table(fetchedCommitData);
 
-      // set the commit data
-      dispatch(setCommitData(fetchedCommitData));
-    } catch (error) {
-      console.error(error);
-    }
-  }, [linkInput, dispatch]);
+        // set the commit data
+        dispatch(setCommitData(fetchedCommitData));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [linkInput, dispatch]
+  );
 
   /**
    * Function called when the user presses the Enter key after
@@ -121,7 +131,12 @@ const Commits = () => {
 
   return (
     <div className="commitsScreenContainer">
-      <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
+      <div className="inputAndButtonContainer">
+        <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
+        <Button variant="contained" color="primary" onClick={inputOnEnterKeyDown}>
+          Fetch
+        </Button>
+      </div>
       <BranchSelector onBranchChange={onBranchChange} />
       <p>Commit Visualizer</p>
       <CommitVisualizer />
@@ -176,6 +191,7 @@ const parseLink = (link: string): ParsedLink => {
  *
  * @param userName The owner of the target repository.
  * @param repoName The target repository's name.
+ * @param branch Optional. The branch to fetch commits from.
  * @returns The fetched commit data.
  */
 export const fetchCommitData = async (

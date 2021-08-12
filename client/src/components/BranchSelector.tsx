@@ -16,10 +16,10 @@ import {
   setBranch,
 } from "../redux/reducers/repoBranchSlice";
 
+// type imports
 import { BranchList, SingleBranch } from "../types";
 
 import "../styles/BranchSelector.css";
-import { fetchCommitData } from "../screens/Commits";
 
 interface BranchSelectorProps {
   onBranchChange: (targetBranch: string) => void;

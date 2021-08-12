@@ -31,6 +31,7 @@ export interface SingleCommit {
   url?: string;
   /** GitHub website url for the specific commit */
   html_url?: string;
+  /** The commit's unique id */
   sha?: string;
   /** Object containing important commit information */
   commit?: Commit;
@@ -45,6 +46,7 @@ export type CommitArray = SingleCommit[];
 /** Commit information deemed important to be visualized */
 export interface CommitInfo {
   message?: string;
+  sha?: string;
   author?: {
     realName?: string;
     userName?: string;
@@ -64,6 +66,12 @@ export interface BranchData {
   defaultBranch: string;
   branchList: BranchList;
 }
+
+/** Object containing information of the parsed link. Used by parseLink function helper */
+export type ParsedLink = {
+  userName: string;
+  repoName: string;
+};
 
 // Example data from official GitHub API web page
 // [

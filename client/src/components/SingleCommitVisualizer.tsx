@@ -1,16 +1,21 @@
 import React, { FC, ReactElement, useState } from "react";
-import { CommitInfo } from "../types";
+import FileSelector from "./FileSelector";
 
 // material UI imports
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
-import { useAppSelector } from "../redux/hooks";
+// redux imports
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
 import { fetchSingleCommitData, parseLink } from "../misc/helpers";
 
+// type imports
+import { CommitInfo } from "../types";
+
 import "../styles/SingleCommitVisualizer.css";
-import FileSelector from "./FileSelector";
+import FileContent from "./FileContent";
+import { setFileList } from "../redux/reducers/fileChangesSlice";
 
 export interface CommitInfoProps {
   commitInfo: CommitInfo;
@@ -28,6 +33,8 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
 
   // Used to retrieve the GitHub username and repo name
   const linkInput = useAppSelector(selectLinkInput);
+
+  const dispatch = useAppDispatch();
 
   /**
    * Function called when the expand arrow icon is pressed.
@@ -54,6 +61,8 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
 
       console.log("fetchedSingleCommitData: ");
       console.log(fetchedSingleCommitData);
+
+      dispatch(setFileList(fetchedSingleCommitData.files || []));
     } catch (error) {
       console.error(error);
     }
@@ -89,9 +98,12 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
           {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </div>
       </div>
-      <div className="fileChangesContainer" hidden={!expanded}>
-        <p>This is the hidden div. Spooky.</p>
-        <FileSelector />
+      <div hidden={!expanded}>
+        <div className="fileChangesContainer">
+          {/* <p>This is the hidden div. Spooky.</p> */}
+          <FileSelector />
+          <FileContent />
+        </div>
       </div>
     </div>
   );

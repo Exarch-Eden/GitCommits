@@ -33,3 +33,7 @@
   margin-left: auto;
   cursor: pointer;
 }
+
+.fileChangesContainer {
+  display: flex;
+}

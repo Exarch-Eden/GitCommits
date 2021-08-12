@@ -12,7 +12,7 @@ import { setCommitData } from "../redux/reducers/commitDataSlice";
 import { selectLinkInput } from "../redux/reducers/linkInputSlice";
 import {
   selectCurrentBranch,
-  setBranch,
+  setCurrent,
   setBranchList,
   setDefaultBranch,
 } from "../redux/reducers/repoBranchSlice";
@@ -113,7 +113,7 @@ const Commits = () => {
       // set the default branch
       dispatch(setDefaultBranch(fetchedBranchData.defaultBranch));
       // set the current branch as the default
-      dispatch(setBranch(fetchedBranchData.defaultBranch));
+      dispatch(setCurrent(fetchedBranchData.defaultBranch));
     } catch (error) {
       console.error(error);
     }

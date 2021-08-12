@@ -6,6 +6,9 @@ import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
 import "../styles/SingleCommitVisualizer.css";
+import { useAppSelector } from "../redux/hooks";
+import { selectLinkInput } from "../redux/reducers/linkInputSlice";
+import { fetchSingleCommitData, parseLink } from "../misc/helpers";
 
 export interface CommitInfoProps {
   commitInfo: CommitInfo;
@@ -21,8 +24,38 @@ export interface CommitInfoProps {
 const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const onExpandChange = () => {
+  // Used to retrieve the GitHub username and repo name
+  const linkInput = useAppSelector(selectLinkInput);
+
+  /**
+   * Function called when the expand arrow icon is pressed.
+   * Fetches data of the current commit and expands the container
+   * to display the changed files from this commit.
+   */
+  const onExpandChange = async () => {
     setExpanded(!expanded);
+    console.log("sha: ", commitInfo.sha);
+
+    try {
+      // sha is a required query parameter for the target endpoint
+      if (!commitInfo.sha) {
+        throw new Error("Commit sha not found.");
+      }
+
+      const parsedLink = parseLink(linkInput);
+
+      const fetchedSingleCommitData = await fetchSingleCommitData(
+        parsedLink.userName,
+        parsedLink.repoName,
+        commitInfo.sha
+      );
+
+      console.log("fetchedSingleCommitData: ");
+      console.log(fetchedSingleCommitData);
+      
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -40,7 +73,6 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
             <p>{commitInfo.author?.userName}</p>
           </a>
         </div>
-        {/* <p>{moddedMessage}</p> */}
         {commitInfo.message ? renderCommitMessage(commitInfo.message) : null}
       </div>
       <div className="expandArrowContainer" onClick={onExpandChange}>

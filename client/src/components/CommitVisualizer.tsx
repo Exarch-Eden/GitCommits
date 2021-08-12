@@ -37,6 +37,7 @@ const renderCommitInfo = (rawCommitArray: CommitArray): ReactElement => {
       {rawCommitArray.map((curCommit: SingleCommit, index: number) => {
         const commitInfo: CommitInfo = {
           message: curCommit.commit?.message,
+          sha: curCommit.sha,
           author: {
             realName: curCommit.commit?.author?.name,
             userName: curCommit.author?.login,

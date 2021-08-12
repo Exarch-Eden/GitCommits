@@ -48,6 +48,8 @@ export interface CommitInfo {
   author?: {
     realName?: string;
     userName?: string;
+    avatar?: string;
+    profile?: string;
   },
 }
 

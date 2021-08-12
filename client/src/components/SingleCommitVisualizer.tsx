@@ -33,7 +33,7 @@ const renderCommitMessage = (commitMessage: string): ReactElement => {
   return (
     <ul>
       {splitMessages.map((curLine: string, index: number) => {
-        return <li>{curLine}</li>;
+        return <li key={index}>{curLine}</li>;
       })}
     </ul>
   );

@@ -38,7 +38,11 @@ app.get("/commits", async (req, res) => {
   console.log("\n", { branch, hash }, "\n");
 
   // github API url
-  const targetFetchUrl = `https://api.github.com/repos/${ownerName}/${repoName}/commits`;
+  let targetFetchUrl = `https://api.github.com/repos/${ownerName}/${repoName}/commits`;
+
+  if (branch) {
+    targetFetchUrl += `?sha=${branch}`
+  }
 
   let data = {};
 

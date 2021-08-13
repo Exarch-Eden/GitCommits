@@ -4,7 +4,7 @@ import { selectPatch } from "../redux/reducers/fileChangesSlice";
 
 import "../styles/FileContent.css";
 
-interface FileContentProps {}
+interface FileContentProps { }
 
 // Patch string example
 // @@ -227,6 +227,10 @@ export const fetchCommitData = async (
@@ -24,7 +24,8 @@ const FileContent: FC<FileContentProps> = () => {
 
   return (
     <div className="fileContentContainer">
-      {patch ? renderPatch(patch) : <p>This file is empty.</p>}
+      {/* {patch ? renderPatch(patch) : <p>This file is empty.</p>} */}
+      <textarea className="patchTextArea" value={patch} spellCheck={false} disabled />
     </div>
   );
 };
@@ -37,7 +38,7 @@ const renderPatch = (patch: string) => {
       {
         lines.map((curLine: string, index: number) => {
           return (
-            <li>{curLine}</li>
+            <li className="filePatchLine" key={index}>{curLine}</li>
           )
         })
       }

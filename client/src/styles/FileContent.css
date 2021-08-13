@@ -6,3 +6,13 @@
 .filePatchList {
   text-align: left;
 }
+
+.patchTextArea {
+  max-height: 800px;
+  min-height: 400px;
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}

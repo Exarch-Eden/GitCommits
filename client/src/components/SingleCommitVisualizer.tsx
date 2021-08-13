@@ -15,7 +15,7 @@ import { CommitInfo } from "../types";
 
 import "../styles/SingleCommitVisualizer.css";
 import FileContent from "./FileContent";
-import { setFileList } from "../redux/reducers/fileChangesSlice";
+import { addExpandedCommit, FileChanges, PayloadFileList, setFileList } from "../redux/reducers/fileChangesSlice";
 
 export interface CommitInfoProps {
   commitInfo: CommitInfo;
@@ -30,6 +30,7 @@ export interface CommitInfoProps {
  */
 const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
   const [expanded, setExpanded] = useState(false);
+  const [sha, setSha] = useState("");
 
   // Used to retrieve the GitHub username and repo name
   const linkInput = useAppSelector(selectLinkInput);
@@ -51,11 +52,13 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
     // if previous value is false, then fetch data
     // otherwise, do not fetch
     if (!prevState) {
-      console.log("sha: ", commitInfo.sha);
+      const sha = commitInfo.sha;
+
+      console.log("sha: ", sha);
 
       try {
         // sha is a required query parameter for the target endpoint
-        if (!commitInfo.sha) {
+        if (!sha) {
           throw new Error("Commit sha not found.");
         }
 
@@ -64,13 +67,22 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
         const fetchedSingleCommitData = await fetchSingleCommitData(
           parsedLink.userName,
           parsedLink.repoName,
-          commitInfo.sha
+          sha
         );
 
         console.log("fetchedSingleCommitData: ");
         console.log(fetchedSingleCommitData);
 
-        dispatch(setFileList(fetchedSingleCommitData.files || []));
+        setSha(sha);
+
+        const newFileChanges: FileChanges = {
+          sha,
+          current: "",
+          fileList: fetchedSingleCommitData.files || [],
+          patch: ""
+        }
+
+        dispatch(addExpandedCommit(newFileChanges));
       } catch (error) {
         console.error(error);
       }
@@ -110,8 +122,8 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
       <div hidden={!expanded}>
         <div className="fileChangesContainer">
           {/* <p>This is the hidden div. Spooky.</p> */}
-          <FileSelector />
-          <FileContent />
+          <FileSelector sha={sha} />
+          <FileContent sha={sha} />
         </div>
       </div>
     </div>

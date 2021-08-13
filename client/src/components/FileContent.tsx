@@ -1,10 +1,14 @@
 import React, { FC } from "react";
+import { useSelector } from "react-redux";
 import { useAppSelector } from "../redux/hooks";
 import { selectPatch } from "../redux/reducers/fileChangesSlice";
+import { RootState } from "../redux/store";
 
 import "../styles/FileContent.css";
 
-interface FileContentProps { }
+interface FileContentProps {
+  sha: string
+}
 
 // Patch string example
 // @@ -227,6 +227,10 @@ export const fetchCommitData = async (
@@ -19,13 +23,15 @@ interface FileContentProps { }
 // } catch (error) {
 //   throw new Error(error);
 
-const FileContent: FC<FileContentProps> = () => {
-  const patch = useAppSelector(selectPatch);
+const FileContent: FC<FileContentProps> = ({ sha }) => {
+  // const patch = useAppSelector(selectPatch);
+  // const patch = useSelector((state: RootState) => selectPatch(state, sha))
+  const patch = useAppSelector((state) => selectPatch(state, sha))
 
   return (
     <div className="fileContentContainer">
       {/* {patch ? renderPatch(patch) : <p>This file is empty.</p>} */}
-      <textarea className="patchTextArea" value={patch} spellCheck={false} disabled />
+      <textarea className="patchTextArea" value={patch ? patch : ""} spellCheck={false} disabled />
     </div>
   );
 };

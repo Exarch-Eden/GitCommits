@@ -5,6 +5,8 @@ import { useCallback } from "react";
 // redux imports
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
+  PayloadCurrentFile,
+  PayloadPatch,
   selectCurrentFile,
   selectFileList,
   setCurrentFile,
@@ -15,18 +17,32 @@ import {
 import { File } from "../types";
 
 import "../styles/FileSelector.css";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
-interface FileSelectorProps {}
+interface FileSelectorProps {
+  sha: string
+}
 
-const FileSelector: FC<FileSelectorProps> = () => {
-  const currentFile = useAppSelector(selectCurrentFile);
-  const fileList = useAppSelector(selectFileList);
+const FileSelector: FC<FileSelectorProps> = ({ sha }) => {
+  // const currentFile = useAppSelector(selectCurrentFile);
+  // const fileList = useAppSelector(selectFileList);
+  // const currentFile = useSelector((state: RootState) => selectCurrentFile(state, sha))
+  // const fileList = useSelector((state: RootState) => selectFileList(state, sha))
+  const currentFile = useAppSelector((state) => selectCurrentFile(state, sha))
+  const fileList = useAppSelector((state) => selectFileList(state, sha))
 
   const dispatch = useAppDispatch();
 
   const fileOnClick = (fileName: string, filePatch: string) => {
-    dispatch(setCurrentFile(fileName));
-    dispatch(setPatch(filePatch));
+    const currentFilePayload: PayloadCurrentFile = {
+      current: fileName, sha
+    };
+
+    const patchPayload: PayloadPatch = { patch: filePatch, sha };
+
+    dispatch(setCurrentFile(currentFilePayload));
+    dispatch(setPatch(patchPayload));
   };
 
   // const renderFileList = (fileList: File[], fileOnClick: (fileName: string) => void): ReactElement => {

@@ -24,9 +24,25 @@ const FileContent: FC<FileContentProps> = () => {
 
   return (
     <div className="fileContentContainer">
-      {patch ? patch : <p>This file is empty.</p>}
+      {patch ? renderPatch(patch) : <p>This file is empty.</p>}
     </div>
   );
 };
+
+const renderPatch = (patch: string) => {
+  const lines = patch.split("\n");
+
+  return (
+    <ul className="filePatchList">
+      {
+        lines.map((curLine: string, index: number) => {
+          return (
+            <li>{curLine}</li>
+          )
+        })
+      }
+    </ul>
+  )
+}
 
 export default FileContent;

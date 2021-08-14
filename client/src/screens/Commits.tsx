@@ -9,12 +9,16 @@ import LinkField from "../components/LinkField";
 // redux imports
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setCommitData } from "../redux/reducers/commitDataSlice";
-import { selectLinkInput } from "../redux/reducers/linkInputSlice";
+import {
+  selectLinkInput,
+  setInputValidity,
+} from "../redux/reducers/linkInputSlice";
 import {
   selectCurrentBranch,
   setCurrent,
   setBranchList,
   setDefaultBranch,
+  clearBranches,
 } from "../redux/reducers/repoBranchSlice";
 
 // type imports
@@ -23,7 +27,8 @@ import { BranchData, BranchList, CommitArray, ParsedLink } from "../types";
 // local helper function imports
 import { fetchBranches, fetchCommitData, parseLink } from "../misc/helpers";
 
-import "../styles/Commits.css"
+import "../styles/Commits.css";
+import { clearExpandedCommits } from "../redux/reducers/fileChangesSlice";
 
 /**
  * Screen component responsible for visualizing GitHub
@@ -36,6 +41,20 @@ const Commits = () => {
   const currentBranch = useAppSelector(selectCurrentBranch);
   // redux store dispatch mainly used to set the commit data after fetching
   const dispatch = useAppDispatch();
+
+  /**
+   * Clears all states
+   */
+  const clearAllStates = useCallback(() => {
+    dispatch(clearBranches);
+    dispatch(clearExpandedCommits);
+  }, [dispatch]);
+
+  const resetExpandedContainers = useCallback(() => {
+    dispatch(setInputValidity(true));
+    dispatch(setInputValidity(false));
+    // dispatch(clearExpandedCommits);
+  }, [dispatch]);
 
   /**
    * Function called when the user changes branches via BranchSelector component.
@@ -64,22 +83,31 @@ const Commits = () => {
         // console.log("fetched commitData:");
         // console.table(fetchedCommitData);
 
+        // set the validity of the link as valid
+        // this is only used to minimize all expanded containers
+        resetExpandedContainers();
+
         // set the commit data
         dispatch(setCommitData(fetchedCommitData));
       } catch (error) {
         console.error(error);
       }
     },
-    [linkInput, dispatch]
+    [linkInput, dispatch, resetExpandedContainers]
   );
 
   /**
    * Function called when the user presses the Enter key after
-   * inputting a GitHub link. Validates existence and public visiblity
+   * inputting a GitHub link.
+   *
+   * Validates existence and public visiblity
    * of the GitHub repository before executing the data fetching process.
    */
   const inputOnEnterKeyDown = useCallback(async () => {
     console.log("linkInput: ", linkInput);
+
+    // clear all previous states
+    clearAllStates();
 
     // holds the parsed user and repo name from the link input
     let parsedLink: ParsedLink = { userName: "", repoName: "" };
@@ -95,6 +123,10 @@ const Commits = () => {
         parsedLink.userName,
         parsedLink.repoName
       );
+
+      // set the validity of the link as valid
+      // this is only used to minimize all expanded containers
+      resetExpandedContainers();
 
       // console.log("fetched commitData:");
       // console.table(fetchedCommitData);
@@ -114,17 +146,29 @@ const Commits = () => {
       dispatch(setDefaultBranch(fetchedBranchData.defaultBranch));
       // set the current branch as the default
       dispatch(setCurrent(fetchedBranchData.defaultBranch));
+
+      // once the expanded containers are minimized,
+      // set validity back to false
+      // dispatch(setInputValidity(false));
     } catch (error) {
+      // link input caused an error,
+      // assume it is because of that and invalidate it
+      dispatch(setInputValidity(false));
+
       console.error(error);
     }
     console.log("end of inputOnEnterKeyDown()");
-  }, [linkInput, dispatch]);
+  }, [linkInput, dispatch, clearAllStates, resetExpandedContainers]);
 
   return (
     <div className="commitsScreenContainer">
       <div className="inputAndButtonContainer">
         <LinkField onEnterKeyDown={inputOnEnterKeyDown} />
-        <Button variant="contained" color="primary" onClick={inputOnEnterKeyDown}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={inputOnEnterKeyDown}
+        >
           Fetch
         </Button>
       </div>

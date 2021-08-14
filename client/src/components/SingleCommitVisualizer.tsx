@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState } from "react";
+import React, { FC, ReactElement, useEffect, useState } from "react";
 import FileSelector from "./FileSelector";
 
 // material UI imports
@@ -7,7 +7,10 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
 // redux imports
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { selectLinkInput } from "../redux/reducers/linkInputSlice";
+import {
+  selectLinkInput,
+  selectLinkValidity,
+} from "../redux/reducers/linkInputSlice";
 import { fetchSingleCommitData, parseLink } from "../misc/helpers";
 
 // type imports
@@ -17,6 +20,7 @@ import "../styles/SingleCommitVisualizer.css";
 import FileContent from "./FileContent";
 import {
   addExpandedCommit,
+  clearExpandedCommits,
   FileChanges,
   PayloadFileList,
   removeExpandedCommit,
@@ -36,12 +40,22 @@ export interface CommitInfoProps {
  */
 const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
   const [expanded, setExpanded] = useState(false);
-  const [sha, setSha] = useState("");
+  // const [sha, setSha] = useState("");
 
   // Used to retrieve the GitHub username and repo name
   const linkInput = useAppSelector(selectLinkInput);
+  const linkValidity = useAppSelector(selectLinkValidity);
 
   const dispatch = useAppDispatch();
+
+  // when the user inputs a new valid GitHub link,
+  // minimize all containers
+  useEffect(() => {
+    if (linkInput && linkValidity && expanded) {
+      setExpanded(false);
+      dispatch(removeExpandedCommit(commitInfo.sha!));
+    }
+  }, [linkInput, linkValidity, expanded, dispatch, commitInfo.sha]);
 
   /**
    * Function called when the expand arrow icon is pressed.
@@ -84,7 +98,7 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
         console.log("fetchedSingleCommitData: ");
         console.log(fetchedSingleCommitData);
 
-        setSha(sha);
+        // setSha(sha);
 
         const newFileChanges: FileChanges = {
           sha,
@@ -137,8 +151,8 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
       <div hidden={!expanded}>
         <div className="fileChangesContainer">
           {/* <p>This is the hidden div. Spooky.</p> */}
-          <FileSelector sha={sha} />
-          <FileContent sha={sha} />
+          <FileSelector sha={commitInfo.sha!} />
+          <FileContent sha={commitInfo.sha!} />
         </div>
       </div>
     </div>

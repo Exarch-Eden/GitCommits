@@ -2,11 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 export interface LinkInputState {
-  value: string;
+  link: string;
+  valid: boolean;
 }
 
 const initialState: LinkInputState = {
-  value: "",
+  link: "",
+  valid: false,
 };
 
 export const linkInputSlice = createSlice({
@@ -14,18 +16,23 @@ export const linkInputSlice = createSlice({
   initialState,
   reducers: {
     setInput: (state, action: PayloadAction<string>) => {
-      state.value = action.payload;
+      state.link = action.payload;
+    },
+    setInputValidity: (state, action: PayloadAction<boolean>) => {
+      state.valid = action.payload;
     },
     clearInput: (state) => {
-      state.value = "";
+      state.link = "";
     },
   },
 });
 
 // Action types
-export const { setInput, clearInput } = linkInputSlice.actions;
+export const { setInput, setInputValidity, clearInput } =
+  linkInputSlice.actions;
 
 // Used to select the current state value
-export const selectLinkInput = (state: RootState) => state.link.value;
+export const selectLinkInput = (state: RootState) => state.link.link;
+export const selectLinkValidity = (state: RootState) => state.link.valid;
 
 export default linkInputSlice.reducer;

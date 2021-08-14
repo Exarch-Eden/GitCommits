@@ -27,10 +27,16 @@ export const repoBranchSlice = createSlice({
     setDefaultBranch: (state, action: PayloadAction<string>) => {
       state.default = action.payload;
     },
+    clearBranches: (state) => {
+      state.current = "";
+      state.default = "";
+      state.branchList = [];
+    },
   },
 });
 
-export const { setCurrent, setBranchList, setDefaultBranch } = repoBranchSlice.actions;
+export const { setCurrent, setBranchList, setDefaultBranch, clearBranches } =
+  repoBranchSlice.actions;
 
 export const selectCurrentBranch = (state: RootState) => state.branch.current;
 export const selectBranchList = (state: RootState) => state.branch.branchList;

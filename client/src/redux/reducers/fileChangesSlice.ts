@@ -58,7 +58,16 @@ export const fileChangesSlice = createSlice({
     },
     removeExpandedCommit: (state, action: PayloadAction<string>) => {
       const index = getIndex(state.expandedCommits, action.payload);
-      state.expandedCommits.splice(index, 1);
+      if (index !== -1) {
+        state.expandedCommits.splice(index, 1);
+      } else {
+        console.error(
+          `Commit with sha ${action.payload} does not exist in expandedArray()`
+        );
+      }
+    },
+    clearExpandedCommits: (state) => {
+      state.expandedCommits = [];
     },
   },
 });
@@ -73,6 +82,7 @@ export const {
   setFileList,
   setPatch,
   removeExpandedCommit,
+  clearExpandedCommits,
 } = fileChangesSlice.actions;
 
 export const selectExpandedCommits = (state: RootState) =>

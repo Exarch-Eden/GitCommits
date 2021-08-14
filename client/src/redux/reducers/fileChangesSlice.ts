@@ -26,11 +26,11 @@ export interface PayloadPatch {
 }
 
 export interface FileChangesState {
-  expandedCommits: FileChanges[]
+  expandedCommits: FileChanges[];
 }
 
 const initialState: FileChangesState = {
-  expandedCommits: []
+  expandedCommits: [],
   // current: "",
   // fileList: [],
   // patch: "",
@@ -41,7 +41,7 @@ export const fileChangesSlice = createSlice({
   initialState,
   reducers: {
     addExpandedCommit: (state, action: PayloadAction<FileChanges>) => {
-      state.expandedCommits = [...state.expandedCommits, action.payload]
+      state.expandedCommits = [...state.expandedCommits, action.payload];
     },
     setCurrentFile: (state, action: PayloadAction<PayloadCurrentFile>) => {
       // const index = state.expandedCommits.findIndex(fileChanges => fileChanges.sha === action.payload.sha);
@@ -56,17 +56,27 @@ export const fileChangesSlice = createSlice({
       const index = getIndex(state.expandedCommits, action.payload.sha);
       state.expandedCommits[index].patch = action.payload.patch;
     },
+    removeExpandedCommit: (state, action: PayloadAction<string>) => {
+      const index = getIndex(state.expandedCommits, action.payload);
+      state.expandedCommits.splice(index, 1);
+    },
   },
 });
 
 const getIndex = (commitsArray: FileChanges[], sha: string) => {
-  return commitsArray.findIndex(fileChanges => fileChanges.sha === sha)
-}
+  return commitsArray.findIndex((fileChanges) => fileChanges.sha === sha);
+};
 
-export const { addExpandedCommit, setCurrentFile, setFileList, setPatch } =
-  fileChangesSlice.actions;
+export const {
+  addExpandedCommit,
+  setCurrentFile,
+  setFileList,
+  setPatch,
+  removeExpandedCommit,
+} = fileChangesSlice.actions;
 
-export const selectExpandedCommits = (state: RootState) => state.file.expandedCommits;
+export const selectExpandedCommits = (state: RootState) =>
+  state.file.expandedCommits;
 
 // export const selectCurrentFile = (sha: string) => {
 //   const commitsArray = useAppSelector(selectExpandedCommits);
@@ -89,7 +99,7 @@ export const selectCurrentFile = (state: RootState, sha: string) => {
   }
 
   return commitsArray[index].current;
-}
+};
 
 export const selectFileList = (state: RootState, sha: string) => {
   const commitsArray = state.file.expandedCommits;
@@ -99,7 +109,7 @@ export const selectFileList = (state: RootState, sha: string) => {
   }
 
   return commitsArray[index].fileList;
-}
+};
 
 export const selectPatch = (state: RootState, sha: string) => {
   const commitsArray = state.file.expandedCommits;
@@ -109,7 +119,7 @@ export const selectPatch = (state: RootState, sha: string) => {
   }
 
   return commitsArray[index].patch;
-}
+};
 
 // export const selectCurrentFile = (state: RootState, sha: string) => state.file.expandedCommits[getIndex(state.file.expandedCommits, sha)].current || "";
 // export const selectFileList = (state: RootState, sha: string) => state.file.expandedCommits[getIndex(state.file.expandedCommits, sha)].fileList || [];

@@ -15,7 +15,13 @@ import { CommitInfo } from "../types";
 
 import "../styles/SingleCommitVisualizer.css";
 import FileContent from "./FileContent";
-import { addExpandedCommit, FileChanges, PayloadFileList, setFileList } from "../redux/reducers/fileChangesSlice";
+import {
+  addExpandedCommit,
+  FileChanges,
+  PayloadFileList,
+  removeExpandedCommit,
+  setFileList,
+} from "../redux/reducers/fileChangesSlice";
 
 export interface CommitInfoProps {
   commitInfo: CommitInfo;
@@ -43,25 +49,30 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
    * to display the changed files from this commit.
    */
   const onExpandChange = async () => {
+    // the commit's unique ID
+    const sha = commitInfo.sha;
+
+    console.log("sha: ", sha);
+
+    // sha is a required query parameter for the target endpoint
+    // it is used to find the specified expanded commit within the state array
+    if (!sha) {
+      console.error("Commit sha not found.");
+      return;
+    }
+
     // holds the previous value of the expanded state
     // used to determine whether or not to fetch data
     const prevState = expanded;
 
     setExpanded(!expanded);
 
-    // if previous value is false, then fetch data
-    // otherwise, do not fetch
+    // if the container has not yet been expanded, then fetch data
+    // otherwise, do not fetch and instead remove the current commit's
+    // file changes data from the state array
     if (!prevState) {
-      const sha = commitInfo.sha;
-
-      console.log("sha: ", sha);
-
       try {
-        // sha is a required query parameter for the target endpoint
-        if (!sha) {
-          throw new Error("Commit sha not found.");
-        }
-
+        // extract the user and repo name to be used for data fetching
         const parsedLink = parseLink(linkInput);
 
         const fetchedSingleCommitData = await fetchSingleCommitData(
@@ -79,13 +90,17 @@ const SingleCommitVisualizer: FC<CommitInfoProps> = ({ commitInfo }) => {
           sha,
           current: "",
           fileList: fetchedSingleCommitData.files || [],
-          patch: ""
-        }
+          patch: "",
+        };
 
         dispatch(addExpandedCommit(newFileChanges));
       } catch (error) {
         console.error(error);
       }
+    } else {
+      // remove the current commit's file changes data in the state array
+      // to prevent duplicate elements within the array
+      dispatch(removeExpandedCommit(sha));
     }
   };
 

@@ -13,13 +13,13 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   selectBranchList,
   selectCurrentBranch,
-  setBranch,
+  setCurrent,
 } from "../redux/reducers/repoBranchSlice";
 
+// type imports
 import { BranchList, SingleBranch } from "../types";
 
 import "../styles/BranchSelector.css";
-import { fetchCommitData } from "../screens/Commits";
 
 interface BranchSelectorProps {
   onBranchChange: (targetBranch: string) => void;
@@ -54,7 +54,7 @@ const BranchSelector: FC<BranchSelectorProps> = ({ onBranchChange }) => {
 
     const newCurrentBranch = event.target.value as string;
 
-    dispatch(setBranch(newCurrentBranch));
+    dispatch(setCurrent(newCurrentBranch));
 
     onBranchChange(newCurrentBranch);
   };

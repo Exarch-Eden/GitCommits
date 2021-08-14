@@ -3,6 +3,7 @@ import counterReducer from '../features/counter/counterSlice';
 import linkInputReducer from './reducers/linkInputSlice';
 import commitDataReducer from './reducers/commitDataSlice';
 import repoBranchReducer from './reducers/repoBranchSlice';
+import fileChangesReducer from './reducers/fileChangesSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     link: linkInputReducer,
     commits: commitDataReducer,
     branch: repoBranchReducer,
+    file: fileChangesReducer
   },
 });
 
